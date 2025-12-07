@@ -466,7 +466,7 @@ else
   # libX11
   # first add default paths to help finding X11
   test x"$x_includes"  = x"NONE" && x_includes="/usr/include"
-  test x"$x_libraries" = x"NONE" && x_libraries="/usr/lib"
+  test x"$x_libraries" = x"NONE" && x_libraries="/usr/lib32"
 
   pov_xwin_msg="disabled"
   AC_PATH_XTRA

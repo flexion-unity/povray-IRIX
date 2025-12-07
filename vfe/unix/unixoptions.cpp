@@ -52,6 +52,9 @@
 // Other library header files
 #include <sys/stat.h>
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 namespace vfePlatform
 {
     using std::cerr;
@@ -85,7 +88,7 @@ namespace vfePlatform
 
         // system configuration file
         m_conf    = "";
-        m_sysconf = POVCONFDIR "/povray.conf";
+        m_sysconf = TOSTRING(POVCONFDIR) "/povray.conf";
 
         // user configuration file
         if (m_home.length() > 0)
@@ -100,8 +103,8 @@ namespace vfePlatform
         }
 
         // system ini file
-        m_sysini     = POVCONFDIR "/povray.ini";
-        m_sysini_old = POVCONFDIR_BACKWARD "/povray.ini";
+        m_sysini     = TOSTRING(POVCONFDIR)  "/povray.ini";
+        m_sysini_old = TOSTRING(POVCONFDIR_BACKWARD)  "/povray.ini";
 
         // user ini file
         if (m_home.length() > 0)
@@ -515,7 +518,7 @@ namespace vfePlatform
         int   i;
         typedef struct { const char *match, *replace; } subst;
         const subst strings[] = {  // beware: order does matter
-            { "%INSTALLDIR%", POVLIBDIR },
+            { "%INSTALLDIR%", TOSTRING(POVLIBDIR) },
             { "%HOME%", m_home.c_str() },
             { "//", "/" },
             { "/./", "/" },
@@ -1002,7 +1005,7 @@ namespace vfePlatform
     void UnixOptionsProcessor::process_povray_conf(void)
     {
         m_Session->ClearPaths();
-        m_Session->AddExcludedPath(string(POVCONFDIR));
+        m_Session->AddExcludedPath(std::string(TOSTRING(POVCONFDIR)));
         if (m_user_dir.length() != 0)
             m_Session->AddExcludedPath(m_user_dir);
 
@@ -1045,8 +1048,8 @@ namespace vfePlatform
         // if no paths specified, at least include POVLIBDIR and POVCONFDIR
         else if(m_permitted_paths.empty())
         {
-            m_permitted_paths.push_back(UnixPath(string(POVLIBDIR "/"), true, false));   // read*
-            m_permitted_paths.push_back(UnixPath(string(POVCONFDIR "/"), false, false)); // read
+            m_permitted_paths.push_back(UnixPath(std::string(TOSTRING(POVLIBDIR)) + "/", true, false));   // read*
+            m_permitted_paths.push_back(UnixPath(std::string(TOSTRING(POVCONFDIR)) + "/", false, false)); // read
         }
 
 #ifdef UNIX_DEBUG
@@ -1132,7 +1135,7 @@ namespace vfePlatform
 
         // warn that no INI file was found and add minimal library_path setting
         fprintf(stderr, "%s: cannot open an INI file, adding default library path\n", PACKAGE);
-        opts.AddLibraryPath(string(POVLIBDIR "/include"));
+        opts.AddLibraryPath(std::string(TOSTRING(POVLIBDIR))+ "/include");
     }
 
 #if 0

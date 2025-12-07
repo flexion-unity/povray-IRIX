@@ -2,6 +2,8 @@
 # From GitHub's C++ .gitignore template
 # =====================================
 
+/build
+
 # Compiled Object files
 *.slo
 *.lo

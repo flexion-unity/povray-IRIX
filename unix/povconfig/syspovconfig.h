@@ -337,6 +337,8 @@ const int NULL=0;
     #if defined(BSD)
         // BSD-style Unix detected.
         #include "syspovconfig_bsd.h"
+    #elif defined(__sgi)
+        #include "syspovconfig_irix.h"
     #else
         // Not officially supported yet; comment-out the following line to try with default POSIX settings.
         #error "Unix detected, but flavor not identified; proceed at your own risk."

@@ -54,6 +54,9 @@
 #include "backend/povray.h"
 #include "backend/control/benchmark.h"
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 namespace pov_frontend
 {
     shared_ptr<Display> gDisplay;
@@ -512,7 +515,7 @@ int main (int argc, char **argv)
     if (running_benchmark)
     {
         // read only the provided INI file and set minimal lib paths
-        opts.AddLibraryPath(string(POVLIBDIR "/include"));
+        opts.AddLibraryPath(std::string(TOSTRING(POVLIBDIR)) + "/include");
         opts.AddINI(bench_ini_name.c_str());
         opts.SetSourceFile(bench_pov_name.c_str());
     }
