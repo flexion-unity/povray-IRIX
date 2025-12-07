@@ -93,7 +93,7 @@ void Scene::StartParser(POVMS_Object& parseOptions)
 
     // A scene can only be parsed once
     if (parserControlThread == nullptr)
-        parserControlThread = Task::NewBoostThread(boost::bind(&Scene::ParserControlThread, this), POV_THREAD_STACK_SIZE);
+        parserControlThread = Task::NewStdThread(boost::bind(&Scene::ParserControlThread, this));
     else
         return;
 
@@ -349,7 +349,7 @@ void Scene::ParserControlThread()
 
         if(stopRequsted == false)
         {
-            boost::thread::yield();
+            std::this_thread::yield();
             Delay(10);
         }
     }

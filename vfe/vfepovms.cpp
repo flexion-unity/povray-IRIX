@@ -39,6 +39,10 @@
 
 #include "povms/povmscpp.h"
 
+ #include <thread>
+ #include <condition_variable>
+ #include <mutex>
+
 // this must be the last file included
 #include "syspovdebug.h"
 
@@ -69,9 +73,8 @@ class SysQNode
     unsigned int                m_ID ;
     DataNode                    *m_First ;
     DataNode                    *m_Last ;
-    boost::mutex                m_EventMutex ;
-    boost::condition            m_Event ;
-
+    std::mutex                  m_EventMutex ;
+    std::condition_variable_any m_Event ;
     static unsigned int         QueueID ;
 } ;
 
@@ -109,7 +112,9 @@ SysQNode::~SysQNode ()
 {
   assert (m_Sanity == 0xEDFEEFBE) ;
   m_Event.notify_all ();
-  boost::mutex::scoped_lock lock (m_EventMutex);
+
+  std::lock_guard<std::mutex> lock(m_EventMutex);
+
   if (m_Count > 0)
   {
     DataNode *current = m_First ;
@@ -137,7 +142,8 @@ int SysQNode::Send (void *pData, int Len)
     dNode->Len = Len ;
     dNode->Next = nullptr;
 
-    boost::mutex::scoped_lock lock (m_EventMutex) ;
+    std::lock_guard<std::mutex> lock (m_EventMutex);
+    //std::unique_lock<std::mutex> lock (m_EventMutex);
 
     if (m_Last != nullptr)
       m_Last->Next = dNode ;
@@ -148,14 +154,14 @@ int SysQNode::Send (void *pData, int Len)
   }
   else
     return (-2) ;
-
-  m_Event.notify_one ();
+  m_Event.notify_one();
   return (0) ;
 }
 
 void *SysQNode::Receive (int *pLen, bool Blocking)
 {
-  boost::mutex::scoped_lock lock (m_EventMutex);
+  std::condition_variable m_EventCond;
+  std::unique_lock<std::mutex> lock (m_EventMutex);
 
   assert (m_Sanity == 0xEDFEEFBE) ;
   if (m_Sanity != 0xEDFEEFBE)
@@ -166,12 +172,10 @@ void *SysQNode::Receive (int *pLen, bool Blocking)
     if (Blocking == false)
       return nullptr;
 
-    // TODO: have a shorter wait but loop, and check for system shutdown
-    // TODO FIXME - boost::xtime has been deprecated since boost 1.34.
-    boost::xtime t;
-    boost::xtime_get (&t, POV_TIME_UTC);
-    t.nsec += 50000000 ;
-    m_Event.timed_wait (lock, t);
+    m_EventCond.wait_for(
+      lock,
+      std::chrono::milliseconds(50)
+    );
 
     if (m_Count == 0)
       return nullptr;

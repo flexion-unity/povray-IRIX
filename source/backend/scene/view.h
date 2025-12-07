@@ -44,6 +44,7 @@
 // Standard C++ header files
 #include <vector>
 
+#include <thread>
 // Boost header files
 #if POV_MULTITHREADED
 #include <boost/thread.hpp>
@@ -462,7 +463,7 @@ class View
         /// stop request flag
         bool stopRequsted;
         /// render control thread
-        boost::thread *renderControlThread;
+        std::thread *renderControlThread;
         /// BSP tree mailbox
         BSPTree::Mailbox mailbox;
 

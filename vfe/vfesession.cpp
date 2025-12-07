@@ -160,7 +160,7 @@ void vfeSession::SetSucceeded (bool ok)
 // Clears all messages from the status message queue.
 void vfeSession::ClearStatusMessages()
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   while (m_StatusQueue.empty() == false)
     m_StatusQueue.pop();
@@ -194,7 +194,7 @@ void vfeSession::AppendStreamMessage (MessageType type, const char *message, boo
 
   const char *begin = message ;
   const char *end = begin + strlen (message) - 1;
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   for (const char *s = begin ; s <= end ; s++)
   {
@@ -221,7 +221,7 @@ void vfeSession::AppendStreamMessage (MessageType type, const boost::format& fmt
 
 void vfeSession::AppendErrorMessage (const string& Msg)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
   bool possibleError = Msg.find("Possible ") == 0 ;
 
   // for the purpose of setting m_HadErrorMessage, we don't consider a
@@ -237,7 +237,7 @@ void vfeSession::AppendErrorMessage (const string& Msg)
 
 void vfeSession::AppendErrorMessage (const string& Msg, const UCS2String& File, int Line, int Col)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
   bool possibleError = Msg.find("Possible ") == 0 ;
 
   // for the purpose of setting m_HadErrorMessage, we don't consider a
@@ -253,7 +253,7 @@ void vfeSession::AppendErrorMessage (const string& Msg, const UCS2String& File, 
 
 void vfeSession::AppendWarningMessage (const string& Msg)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   m_MessageQueue.push (GenericMessage (*this, mWarning, Msg));
   if (m_MaxGenericMessages != -1)
@@ -264,7 +264,7 @@ void vfeSession::AppendWarningMessage (const string& Msg)
 
 void vfeSession::AppendWarningMessage (const string& Msg, const UCS2String& File, int Line, int Col)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   m_MessageQueue.push (GenericMessage (*this, mWarning, Msg, File, Line, Col));
   if (m_MaxGenericMessages != -1)
@@ -275,7 +275,7 @@ void vfeSession::AppendWarningMessage (const string& Msg, const UCS2String& File
 
 void vfeSession::AppendStatusMessage (const string& Msg, int RecommendedPause)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   m_StatusQueue.push (StatusMessage (*this, Msg, RecommendedPause));
   m_StatusLineMessage = Msg;
@@ -287,7 +287,7 @@ void vfeSession::AppendStatusMessage (const string& Msg, int RecommendedPause)
 
 void vfeSession::AppendStatusMessage (const boost::format& fmt, int RecommendedPause)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   m_StatusQueue.push (StatusMessage (*this, fmt.str(), RecommendedPause));
   m_StatusLineMessage = fmt.str();
@@ -299,7 +299,7 @@ void vfeSession::AppendStatusMessage (const boost::format& fmt, int RecommendedP
 
 void vfeSession::AppendAnimationStatus (int FrameId, int SubsetFrame, int SubsetTotal, const UCS2String& Filename)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   m_CurrentFrameId = FrameId;
   m_CurrentFrame = SubsetFrame;
@@ -334,7 +334,7 @@ bool vfeSession::GetNextCombinedMessage (MessageType &Type, string& Message)
   POV_LONG                    mqTime = 0x7fffffffffffffffLL ;
   POV_LONG                    sqTime = 0x7fffffffffffffffLL ;
   POV_LONG                    cqTime = 0x7fffffffffffffffLL ;
-  boost::mutex::scoped_lock   lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   if (m_MessageQueue.empty() && m_StatusQueue.empty() && m_ConsoleQueue.empty())
     return (false);
@@ -380,7 +380,7 @@ bool vfeSession::GetNextNonStatusMessage (MessageType &Type, string& Message, UC
 {
   POV_LONG                    mqTime = 0x7fffffffffffffffLL ;
   POV_LONG                    cqTime = 0x7fffffffffffffffLL ;
-  boost::mutex::scoped_lock   lock(m_MessageMutex);
+  std::lock_guard<std::mutex>   lock(m_MessageMutex);
 
   if (m_MessageQueue.empty() && m_ConsoleQueue.empty())
     return (false);
@@ -450,7 +450,7 @@ bool vfeSession::GetNextNonStatusMessage (MessageType &Type, string& Message)
 // as a parameter, then returns true.
 bool vfeSession::GetNextStatusMessage (StatusMessage& Message)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   if (m_StatusQueue.empty())
     return (false);
@@ -465,7 +465,7 @@ bool vfeSession::GetNextStatusMessage (StatusMessage& Message)
 // parameter, then returns true.
 bool vfeSession::GetNextGenericMessage (GenericMessage& Message)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   if (m_MessageQueue.empty())
     return (false);
@@ -480,7 +480,7 @@ bool vfeSession::GetNextGenericMessage (GenericMessage& Message)
 // then returns true.
 bool vfeSession::GetNextConsoleMessage (MessageBase& Message)
 {
-  boost::mutex::scoped_lock lock(m_MessageMutex);
+  std::lock_guard<std::mutex> lock(m_MessageMutex);
 
   if (m_ConsoleQueue.empty())
     return (false);
@@ -582,7 +582,7 @@ void vfeSession::WorkerThread()
     return;
   }
 
-  m_BackendThread = povray_init (boost::bind(&vfeSession::BackendThreadNotify, this), const_cast<void **>(&pov::RenderThreadAddr)) ;
+  m_BackendThread = povray_init (std::bind(&vfeSession::BackendThreadNotify, this), const_cast<void **>(&pov::RenderThreadAddr)) ;
   POVMS_Output_Context = pov::POVMS_GUI_Context ;
 
   m_Console = shared_ptr<vfeConsole> (new vfeConsole(this, m_ConsoleWidth)) ;
@@ -648,7 +648,7 @@ void vfeSession::WorkerThread()
           }
           m_RequestEvent.notify_all ();
         }
-        boost::thread::yield();
+        std::this_thread::yield();
       }
       catch (pov_base::Exception& e)
       {
@@ -1050,7 +1050,7 @@ void vfeSession::NotifyEvent(vfeStatusFlags Status)
 // connection with the backend code.
 int vfeSession::Initialize(vfeDestInfo *Dest, vfeAuthInfo *Auth)
 {
-  boost::mutex::scoped_lock lock (m_InitializeMutex);
+  std::unique_lock<std::mutex> lock (m_InitializeMutex);
 
   // params must be `nullptr` in this version
   if ((Dest != nullptr) || (Auth != nullptr))
@@ -1070,18 +1070,20 @@ int vfeSession::Initialize(vfeDestInfo *Dest, vfeAuthInfo *Auth)
   m_MessageCount = 0;
   m_LastError = vfeNoError;
 
-  // TODO FIXME - boost::xtime has been deprecated since boost 1.34.
-  boost::xtime t;
-  boost::xtime_get (&t, POV_TIME_UTC);
-  t.sec += 3 ;
-#ifdef _DEBUG
-  t.sec += 120;
-#endif
-  t.nsec = 0;
-  m_WorkerThread = new boost::thread(vfeSessionWorker(*this));
+  m_WorkerThread = new std::thread(vfeSessionWorker(*this));
 
   // TODO FIXME: see thread <47ca756c$1@news.povray.org>
-  if (m_BackendState == kUnknown && m_InitializeEvent.timed_wait(lock, t)  == false)
+  //if (m_BackendState == kUnknown && m_InitializeEvent.timed_wait(lock, t)  == false)
+  
+  std::condition_variable m_EventCond;
+
+  bool cond = m_EventCond.wait_for(
+    lock,
+    std::chrono::seconds(1),
+    [&]{ return m_BackendState != kUnknown; }
+  );  
+  
+  if (!cond)
   {
     m_WorkerThreadShutdownRequest = true ;
     m_Initialized = false ;

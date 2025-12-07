@@ -54,12 +54,7 @@ namespace pov_base
 
 void Delay(unsigned int msec)
 {
-    boost::xtime t;
-    boost::xtime_get(&t, POV_TIME_UTC);
-    POV_ULONG ns = (POV_ULONG)(t.sec) * (POV_ULONG)(1000000000) + (POV_ULONG)(t.nsec) + (POV_ULONG)(msec) * (POV_ULONG)(1000000);
-    t.sec = (boost::xtime::xtime_sec_t)(ns / (POV_ULONG)(1000000000));
-    t.nsec = (boost::xtime::xtime_nsec_t)(ns % (POV_ULONG)(1000000000));
-    boost::thread::sleep(t);
+    std::this_thread::sleep_for(std::chrono::milliseconds(msec));
 }
 
 #endif // POV_MULTITHREADED && POV_USE_DEFAULT_DELAY

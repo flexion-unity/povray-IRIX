@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     fflush(stdout);
 
     // Init
-    povray_init(boost::bind(&BackendExitCallback), &backendAddress);
+    povray_init(std::bind(&BackendExitCallback), &backendAddress);
 
     if(err == kNoErr)
         err = POVMS_OpenContext(&frontendContext);

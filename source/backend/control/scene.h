@@ -46,6 +46,7 @@
 #include <string>
 #include <vector>
 
+#include <thread>
 // Boost header files
 #if POV_MULTITHREADED
 #include <boost/thread.hpp>
@@ -189,7 +190,7 @@ class Scene
         /// stop request flag
         bool stopRequsted;
         /// parser control thread
-        boost::thread *parserControlThread;
+        std::thread *parserControlThread;
 
         /**
          *  Send the parser statistics upon completion of a parsing.

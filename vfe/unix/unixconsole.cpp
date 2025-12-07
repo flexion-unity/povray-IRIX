@@ -85,7 +85,7 @@ static bool gCancelRender = false;
 
 // for handling asynchronous (external) signals
 static int gSignalNumber = 0;
-static boost::mutex gSignalMutex;
+static std::mutex gSignalMutex;
 
 
 static void SignalHandler (void)
@@ -97,7 +97,7 @@ static void SignalHandler (void)
     {
         sigfillset(&sigset);
         sigwait(&sigset, &signum);  // wait till a signal is caught
-        boost::mutex::scoped_lock lock(gSignalMutex);
+        std::lock_guard<std::mutex> lock (gSignalMutex);
         gSignalNumber = signum;
     }
 }
@@ -105,7 +105,7 @@ static void SignalHandler (void)
 
 static void ProcessSignal (void)
 {
-    boost::mutex::scoped_lock lock(gSignalMutex);
+    std::lock_guard<std::mutex> lock (gSignalMutex);
 
     switch (gSignalNumber)
     {
@@ -411,7 +411,7 @@ int main (int argc, char **argv)
     string            bench_ini_name;
     string            bench_pov_name;
     sigset_t          sigset;
-    boost::thread    *sigthread;
+    std::thread    *sigthread;
     char **           argv_copy=argv; /* because argv is updated later */
     int               argc_copy=argc; /* because it might also be updated */
 
@@ -439,7 +439,7 @@ int main (int argc, char **argv)
     pthread_sigmask(SIG_BLOCK, &sigset, nullptr);
 
     // create the signal handling thread
-    sigthread = new boost::thread(SignalHandler);
+    sigthread = new std::thread(SignalHandler);
 
     session = new vfeUnixSession();
     if (session->Initialize(nullptr, nullptr) != vfeNoError)

@@ -47,6 +47,7 @@
 // Module config header file must be the first file included within POV-Ray unit header files
 #include "backend/configbackend.h"
 
+#include <thread>
 // Boost header files
 #include <boost/function.hpp>
 #if POV_MULTITHREADED
@@ -66,7 +67,7 @@
  *  @param  addr  If not `nullptr`, backend address on return.
  *  @return       Pointer to the thread resource created.
  */
-boost::thread *povray_init(const boost::function0<void>& threadExit, POVMSAddress *addr = nullptr);
+std::thread *povray_init(const boost::function0<void>& threadExit, POVMSAddress *addr = nullptr);
 
 /**
  *  This function shuts down the main render thread and after it has

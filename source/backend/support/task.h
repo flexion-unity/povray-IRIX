@@ -41,6 +41,8 @@
 // Module config header file must be the first file included within POV-Ray unit header files
 #include "backend/configbackend.h"
 
+#include <thread>
+
 // Boost header files
 #include <boost/function.hpp>
 #if POV_MULTITHREADED
@@ -102,7 +104,7 @@ class Task
             {
                 while(paused == true)
                 {
-                    boost::thread::yield();
+                    std::this_thread::yield();
                     Delay(100);
                     if(stopRequested == true)
                         throw StopThreadException();
@@ -116,20 +118,10 @@ class Task
 
         /// Start a new thread with a given stack size.
         template<typename CALLABLE_T>
-        inline static boost::thread* NewBoostThread(CALLABLE_T func, int stackSize)
+        inline static std::thread* NewStdThread(CALLABLE_T func /*, int stackSize*/ )
         {
-#if HAVE_BOOST_THREAD_ATTRIBUTES
-            // boost 1.50 and later provide an official mechanism to set the stack size.
-            boost::thread::attributes attr;
-            attr.set_stack_size (stackSize);
-            return new boost::thread(attr, func);
-#elif !defined(USE_OFFICIAL_BOOST)
-            // Prior to boost 1.50, for some platforms we used an unofficial hacked version of boost to set the stack size.
-            return new boost::thread(func, stackSize);
-#else
             // For some platforms the default stack size of older boost versions may suffice.
-            return new boost::thread(func);
-#endif
+            return new std::thread(func);
         }
 
     protected:
@@ -164,7 +156,7 @@ class Task
         // CPU time spend in task
         POV_LONG cpuTime;
         /// task thread
-        boost::thread *taskThread;
+        std::thread *taskThread;
         /// POVMS message receiving context
         POVMSContext povmsContext;
 

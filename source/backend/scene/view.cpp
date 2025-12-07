@@ -703,7 +703,7 @@ void View::StartRender(POVMS_Object& renderOptions)
     shared_ptr<ViewData::BlockIdSet> blockskiplist(new ViewData::BlockIdSet());
 
     if (renderControlThread == nullptr)
-        renderControlThread = Task::NewBoostThread(boost::bind(&View::RenderControlThread, this), POV_THREAD_STACK_SIZE);
+        renderControlThread = Task::NewStdThread(boost::bind(&View::RenderControlThread, this));
 
     viewData.qualityFlags = QualityFlags(clip(renderOptions.TryGetInt(kPOVAttrib_Quality, 9), 0, 9));
 
@@ -1456,7 +1456,7 @@ void View::RenderControlThread()
 
         if(stopRequsted == false)
         {
-            boost::thread::yield();
+            std::this_thread::yield();
             Delay(50);
         }
     }

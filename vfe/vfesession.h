@@ -41,6 +41,9 @@
 
 #include <queue>
 
+#include <thread>
+#include <condition_variable>
+
 #include <boost/thread.hpp>
 #include <boost/thread/condition.hpp>
 
@@ -1275,14 +1278,14 @@ namespace vfe
       VirtualFrontEnd *m_Frontend;
       State m_BackendState;
 
-      boost::mutex m_MessageMutex;
+      std::mutex m_MessageMutex;
       boost::mutex m_SessionMutex;
       boost::condition m_SessionEvent;
-      boost::mutex m_InitializeMutex;
+      std::mutex m_InitializeMutex;
       boost::condition m_InitializeEvent;
       boost::condition m_ShutdownEvent;
-      boost::thread *m_WorkerThread;
-      boost::thread *m_BackendThread;
+      std::thread *m_WorkerThread;
+      std::thread *m_BackendThread;
       volatile bool m_WorkerThreadExited;
       volatile bool m_BackendThreadExited;
       volatile bool m_WorkerThreadShutdownRequest;
