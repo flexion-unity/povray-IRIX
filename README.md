@@ -4,17 +4,13 @@ Fork of [POV-Ray v3.8.0-beta.2](https://github.com/POV-Ray/povray) with adjustme
 
 - Some boost calls removed and replaced with std c++11 due to segfaults.
 
-
-
 ## How to build on IRIX with GCC 9.2
 
-$ cd unix
-$ ./prebuild.sh
-$ cd ..
-$ mkdir build && cd build
-$ ../configure COMPILED_BY="YOUR NAME" --with-boost=/usr/sgug/include/boost --with-boost-libdir=/usr/sgug/lib32 --disable-io-restrictions --prefix=/usr/sgug 
-
-
+- $ cd unix
+- $ ./prebuild.sh
+- $ cd ..
+- $ mkdir build && cd build
+- $ ../configure COMPILED_BY="YOUR NAME" --with-boost=/usr/sgug/include/boost --with-boost-libdir=/usr/sgug/lib32 --disable-io-restrictions --prefix=/usr/sgug 
 
 ## License
 
